@@ -6,17 +6,19 @@ using namespace std;
 class Trip {
 
 public:
-
     Station* header;
     Station* trailer;
+    int numStation;
+    
     Trip()
     {
         header = new Station;
         trailer = new Station;
-        header -> prev = NULL;
-        header -> next = trailer;
-        trailer -> prev = header;
-        trailer -> next = NULL;
+        header->next = trailer;
+        header->prev = NULL;
+        trailer->prev = header;
+        trailer->next = NULL;
+        numStation = 0;  
     }
 
     void printList()
@@ -24,8 +26,8 @@ public:
         cout << "[ ";
         Station* ptr = header->next;
         while (ptr != trailer) {
-          cout << ptr->name << " ";
-          ptr = ptr->next;
+            cout << ptr->name << " ";
+            ptr = ptr->next;
         }
         cout << "]\n";
     }
@@ -33,60 +35,67 @@ public:
 
     void insert_front(string newItem)
     {
-          Station* newSta = new Station;
-          newSta -> name = newItem;
-          newSta -> next = header -> next;
-          newSta -> prev = header;
-          header -> next = newSta;
-          newSta -> next -> prev = newSta;
+        Station* newStation = new Station();
+        newStation->name = newItem;
+        newStation->next = header->next;
+        newStation->prev = header;
+        header->next->prev = newStation;
+        header->next = newStation;
+        numStation++;
     }
+    
     void insert_back(string newItem)
     {
-          Station* newSta = new Station;
-          newSta -> name = newItem;
-          newSta -> next = trailer;
-          newSta -> prev = trailer -> prev;
-          trailer -> prev = newSta;
-          newSta -> prev -> next = newSta;
+        Station* newStation = new Station();
+        newStation->name = newItem;
+        newStation->next = trailer;
+        newStation->prev = trailer->prev;
+        trailer->prev->next = newStation;
+        trailer->prev = newStation;
+        numStation++;
     }
 
     void remove_front()
     {
-         Station* DelSta;
-         DelSta = header -> next;
-         header -> next = DelSta -> next;
-         DelSta -> next -> prev = header;
-         delete DelSta;
-         DelSta = nullptr;
+        if(header->next != trailer){
+            Station* stationRemove;
+            stationRemove = header->next;
+            header->next = stationRemove->next;
+            stationRemove->prev = header;
+            delete stationRemove;
+            stationRemove = nullptr;
+            numStation--;
+        }
     }
+    
     void remove_back()
     {
-         Station* DelSta;
-         DelSta = trailer -> prev;
-         trailer -> prev = DelSta -> prev;
-         DelSta -> prev -> next = trailer;
-         delete DelSta;
-         DelSta = nullptr;
+        if(trailer->prev != header){
+            Station* stationRemove;
+            stationRemove = trailer->prev;
+            trailer->prev = stationRemove->prev;
+            stationRemove->prev->next = trailer;
+            delete stationRemove;
+            stationRemove = nullptr;
+            numStation--;
+        }
     }
 
     Station* visit(int nStep, string stepText)
     {
-          Station* thisSta;
-          thisSta = header -> next;
-          for(int i = 0; i < nStep;i++){
-              if(stepText[i] == 'R'){
-                   thisSta = thisSta -> next;
-                   if(thisSta == trailer){
-                        thisSta = trailer -> prev;
-                   }
-              }
-              else{
-                   thisSta = thisSta -> prev;
-                   if(thisSta == header){
-                        thisSta = header -> next;
-                   }
-              }
-         }
-         return thisSta;
+        Station* lastStation = header->next;
+        for(int i=0;i<nStep;i++){
+            if(stepText[i] == 'R'){
+                if(lastStation->next->next != NULL){
+                    lastStation = lastStation->next;
+                }
+            }else{
+                if(lastStation->prev->prev != NULL){
+                    lastStation = lastStation->prev;
+                }
+            }
+        }
+        return(lastStation);
+    
     }
 };
